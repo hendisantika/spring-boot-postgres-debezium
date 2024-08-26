@@ -49,4 +49,9 @@ public class PolicyDeserializer implements Deserializer<PolicyMessageCDC> {
     public PolicyMessageCDC deserialize(String topic, Headers headers, ByteBuffer data) {
         return Deserializer.super.deserialize(topic, headers, data);
     }
+
+    @Override
+    public void close() {
+        Deserializer.super.close();
+    }
 }
