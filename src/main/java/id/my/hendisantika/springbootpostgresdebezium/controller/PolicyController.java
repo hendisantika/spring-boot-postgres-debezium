@@ -1,7 +1,11 @@
 package id.my.hendisantika.springbootpostgresdebezium.controller;
 
+import id.my.hendisantika.springbootpostgresdebezium.model.Policy;
 import id.my.hendisantika.springbootpostgresdebezium.service.PolicyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,4 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class PolicyController {
 
     private final PolicyService policyService;
+
+    @PostMapping(value = "/add-policy")
+    public ResponseEntity<Policy> addPolicy(@RequestBody Policy policy) {
+        return ResponseEntity.ok()
+                .body(policyService.addPolicy(policy));
+    }
 }
