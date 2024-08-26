@@ -3,6 +3,7 @@ package id.my.hendisantika.springbootpostgresdebezium.deserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import id.my.hendisantika.springbootpostgresdebezium.model.PolicyMessageCDC;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
 
 import java.io.IOException;
@@ -36,5 +37,10 @@ public class PolicyDeserializer implements Deserializer<PolicyMessageCDC> {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public PolicyMessageCDC deserialize(String topic, Headers headers, byte[] data) {
+        return Deserializer.super.deserialize(topic, headers, data);
     }
 }
