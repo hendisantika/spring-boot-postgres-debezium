@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -31,5 +32,10 @@ public class PolicyService {
         LocalDateTime endDate = LocalDateTime.of(2029, 1, 30, 23, 59, 59, 999999999);
         policy.setEndDate(endDate);
         return policyRepository.save(policy);
+    }
+
+    public List<Policy> getAllPolicies() {
+        log.info("getAllPolicy..");
+        return policyRepository.findAll();
     }
 }
