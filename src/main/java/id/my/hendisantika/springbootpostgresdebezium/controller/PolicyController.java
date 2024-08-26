@@ -4,6 +4,7 @@ import id.my.hendisantika.springbootpostgresdebezium.model.Policy;
 import id.my.hendisantika.springbootpostgresdebezium.service.PolicyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,5 +31,11 @@ public class PolicyController {
     public ResponseEntity<Policy> addPolicy(@RequestBody Policy policy) {
         return ResponseEntity.ok()
                 .body(policyService.addPolicy(policy));
+    }
+
+    @PostMapping(value = "/update-policy/{id}")
+    public ResponseEntity<Policy> updatePolicy(@PathVariable("id") Long id, @RequestBody Policy policy) {
+        return ResponseEntity.ok()
+                .body(policyService.updatePolicy(id, policy));
     }
 }
