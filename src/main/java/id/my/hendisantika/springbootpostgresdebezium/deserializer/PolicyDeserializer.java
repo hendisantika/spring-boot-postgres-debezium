@@ -5,6 +5,7 @@ import id.my.hendisantika.springbootpostgresdebezium.model.PolicyMessageCDC;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Deserializer;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -25,5 +26,15 @@ public class PolicyDeserializer implements Deserializer<PolicyMessageCDC> {
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
         Deserializer.super.configure(configs, isKey);
+    }
+
+    @Override
+    public PolicyMessageCDC deserialize(String payload, byte[] bytes) {
+        log.info("kafka process deserializer from payload = [{}]", payload);
+        try {
+            return objectMapper.readValue(bytes, PolicyMessageCDC.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
