@@ -5,6 +5,8 @@ import id.my.hendisantika.springbootpostgresdebezium.model.PolicyMessageCDC;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Deserializer;
 
+import java.util.Map;
+
 /**
  * Created by IntelliJ IDEA.
  * Project : spring-boot-postgres-debezium
@@ -20,4 +22,8 @@ public class PolicyDeserializer implements Deserializer<PolicyMessageCDC> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    @Override
+    public void configure(Map<String, ?> configs, boolean isKey) {
+        Deserializer.super.configure(configs, isKey);
+    }
 }
