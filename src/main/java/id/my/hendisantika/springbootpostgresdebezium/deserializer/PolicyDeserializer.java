@@ -7,6 +7,7 @@ import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 /**
@@ -41,6 +42,11 @@ public class PolicyDeserializer implements Deserializer<PolicyMessageCDC> {
 
     @Override
     public PolicyMessageCDC deserialize(String topic, Headers headers, byte[] data) {
+        return Deserializer.super.deserialize(topic, headers, data);
+    }
+
+    @Override
+    public PolicyMessageCDC deserialize(String topic, Headers headers, ByteBuffer data) {
         return Deserializer.super.deserialize(topic, headers, data);
     }
 }
