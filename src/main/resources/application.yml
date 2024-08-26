@@ -1,0 +1,19 @@
+#config spring kafka debezium
+spring:
+  application.name: spring-boot-postgres-debezium
+  datasource:
+    url: jdbc:postgresql://localhost:5555/debezium
+    username: postgres
+    password: postgres
+    hikari:
+      max-lifetime: 1800000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+server:
+  port: 8080
