@@ -38,4 +38,16 @@ public class PolicyService {
         log.info("getAllPolicy..");
         return policyRepository.findAll();
     }
+
+    public Policy updatePolicy(Long id, Policy policy) {
+        log.info("updatePolicy ID = [{}], policy = [{}]", id, policy);
+        Policy currentPolicy = policyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Policy id is not found !"));
+        currentPolicy.setId(id);
+        currentPolicy.setPolicyHolder(policy.getPolicyHolder());
+        currentPolicy.setPolicyNumber(policy.getPolicyNumber());
+        currentPolicy.setStartDate(currentPolicy.getStartDate());
+        currentPolicy.setEndDate(currentPolicy.getEndDate());
+        return policyRepository.save(currentPolicy);
+    }
 }
