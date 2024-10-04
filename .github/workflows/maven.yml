@@ -160,7 +160,7 @@ jobs:
           ECR_REPOSITORY: debezium
           IMAGE_TAG: ${{ github.run_number }}
           CONTAINER_NAME: debezium
-          APP_SERVER_PORT: ${{ vars.APP_SERVER_PORT_DEV }}
+          APP_SERVER_PORT: ${{ vars.APP_SERVER_PORT }}
           SPRING_DATASOURCE_URL: ${{ vars.SPRING_DATASOURCE_URL_DEV }}
           SPRING_DATASOURCE_USERNAME: ${{ vars.SPRING_DATASOURCE_USERNAME_DEV }}
           SPRING_DATASOURCE_PASSWORD: ${{ vars.SPRING_DATASOURCE_PASSWORD_DEV }}
