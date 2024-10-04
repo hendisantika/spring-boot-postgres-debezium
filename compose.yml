@@ -26,7 +26,7 @@ services:
     environment:
       KAFKA_BROKERS: kafka:9092
     ports:
-      - "8080:8080"
+      - "8090:8080"
     depends_on:
       - kafka
   db:
@@ -37,7 +37,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: debezium
     ports:
-      - "5555:5432"
+      - "5432:5432"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     command:

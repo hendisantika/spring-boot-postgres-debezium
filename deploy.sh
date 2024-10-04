@@ -4,7 +4,8 @@ cd ~/debezium
 set +a
 source .env
 start=$(date +"%s")
-docker pull hendisantika/$CONTAINER_NAME
+docker compose up
+docker pull hendisantika/$CONTAINER_NAME:$IMAGE_TAG
 if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
     echo "Container is running -> stopping it..."
     docker system prune -af
