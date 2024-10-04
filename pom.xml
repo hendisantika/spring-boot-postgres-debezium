@@ -10,7 +10,7 @@
     </parent>
     <groupId>id.my.hendisantika</groupId>
     <artifactId>spring-boot-postgres-debezium</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>spring-boot-postgres-debezium</name>
     <description>spring-boot-postgres-debezium</description>
     <properties>
@@ -60,6 +60,12 @@
             <artifactId>spring-kafka-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-docker-compose</artifactId>-->
+        <!--            <scope>runtime</scope>-->
+        <!--            <optional>true</optional>-->
+        <!--        </dependency>-->
     </dependencies>
 
     <build>
