@@ -107,11 +107,63 @@ jobs:
         run: |
           touch key.txt && echo "${{ secrets.SERVER_KEY }}" > key.txt
           chmod 600 key.txt
-      - name: Deploy the application
+      - name: Create SSH key
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/private.key
+          sudo chmod 600 ~/.ssh/private.key
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          sudo chmod 600 ~/.ssh/known_hosts
+        shell: bash
+        env:
+          SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SSH_PRIVATE_KEY: ${{secrets.SERVER_KEY}}
+          SSH_KNOWN_HOSTS: ${{secrets.SERVER_HOST}}
+
+      - name: Set all environment variables
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          SERVER_USER: ${{ secrets.SERVER_USERNAME }}
+          SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
+          IMAGE_TAG: ${{ github.run_number }}
+          CONTAINER_NAME: debezium
+          APP_SERVER_PORT: ${{ vars.APP_SERVER_PORT_DEV }}
+          SPRING_DATASOURCE_URL: ${{ vars.SPRING_DATASOURCE_URL_DEV }}
+          SPRING_DATASOURCE_USERNAME: ${{ vars.SPRING_DATASOURCE_USERNAME_DEV }}
+          SPRING_DATASOURCE_PASSWORD: ${{ vars.SPRING_DATASOURCE_PASSWORD_DEV }}
+        run: |
+          echo CONTAINER_NAME=$CONTAINER_NAME >> .env
+          echo IMAGE_TAG=$IMAGE_TAG >> .env
+          echo APP_SERVER_PORT=$APP_SERVER_PORT >> .env
+          echo SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL >> .env
+          echo SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME >> .env
+          echo SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD >> .env
+
+      - name: Copy all environment variables
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "./.env"  # Path to the file on your runner
+          target: "~/debezium"  # Target directory on the server
+
+      - name: Run the application
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
+          ECR_REPOSITORY: debezium
+          IMAGE_TAG: ${{ github.run_number }}
+          CONTAINER_NAME: debezium
+          APP_SERVER_PORT: ${{ vars.APP_SERVER_PORT_DEV }}
+          SPRING_DATASOURCE_URL: ${{ vars.SPRING_DATASOURCE_URL_DEV }}
+          SPRING_DATASOURCE_USERNAME: ${{ vars.SPRING_DATASOURCE_USERNAME_DEV }}
+          SPRING_DATASOURCE_PASSWORD: ${{ vars.SPRING_DATASOURCE_PASSWORD_DEV }}
         run: |
           set -e
           ./deploy.sh
+      

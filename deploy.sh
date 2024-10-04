@@ -1,20 +1,17 @@
 #!/bin/bash
-
+ssh -p "${SERVER_PORT}" "${SERVER_USERNAME}"@"${SERVER_HOST}" -i key.txt -t -t -o StrictHostKeyChecking=no << 'ENDSSH'
+cd ~/debezium
+set +a
+source .env
 start=$(date +"%s")
-
-ssh -p ${SERVER_PORT} ${SERVER_USER}@${SERVER_HOST} -i key.txt -t -t -o StrictHostKeyChecking=no << 'ENDSSH'
-docker pull hendisantika/debezium:latest
-
-CONTAINER_NAME=bmiapp
-if [ "$(docker ps -qa -f name=$CONTAINER_NAME)" ]; then
-    if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
-        echo "Container is running -> stopping it..."
-        docker stop $CONTAINER_NAME;
-    fi
+aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REGISTRY
+if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
+    echo "Container is running -> stopping it..."
+    docker system prune -af
+    docker stop $CONTAINER_NAME;
+    docker rm $CONTAINER_NAME
 fi
-
-docker run -d --rm -p 8000:8000 --name $CONTAINER_NAME hendisantika/bmi:latest
-
+docker run -d --rm -p 9002:9002 --env-file .env --name $CONTAINER_NAME  $AWS_ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 exit
 ENDSSH
 
