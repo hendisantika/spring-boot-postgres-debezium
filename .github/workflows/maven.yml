@@ -12,7 +12,7 @@ on:
     branches: [ main ]
     paths:
       - 'src/**'
-      - '.github/workflows/app-workflow.yml'
+      - '.github/workflows/maven.yml'
       - 'pom.xml'
       - Dockerfile
       - deploy.sh
