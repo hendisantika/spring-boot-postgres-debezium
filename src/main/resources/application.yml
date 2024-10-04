@@ -2,7 +2,7 @@
 spring:
   application.name: spring-boot-postgres-debezium
   datasource:
-    url: jdbc:postgresql://localhost:5555/debezium
+    url: jdbc:postgresql://localhost:5432/debezium
     username: postgres
     password: postgres
     hikari:
