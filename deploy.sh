@@ -4,14 +4,14 @@ cd ~/debezium
 set +a
 source .env
 start=$(date +"%s")
-aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REGISTRY
+docker pull hendisantika/$CONTAINER_NAME
 if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
     echo "Container is running -> stopping it..."
     docker system prune -af
     docker stop $CONTAINER_NAME;
     docker rm $CONTAINER_NAME
 fi
-docker run -d --rm -p 9002:9002 --env-file .env --name $CONTAINER_NAME  $AWS_ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+docker run -d --rm -p $APP_SERVER_PORT:$APP_SERVER_PORT --env-file .env --name $CONTAINER_NAME  hendisantika/$CONTAINER_NAME:$IMAGE_TAG
 exit
 ENDSSH
 
