@@ -15,7 +15,7 @@
     <description>spring-boot-postgres-debezium</description>
     <properties>
         <java.version>23</java.version>
-        <testcontainers.version>1.21.1</testcontainers.version>
+        <testcontainers.version>1.21.2</testcontainers.version>
              <lombok.version>1.18.38</lombok.version>
     </properties>
     <dependencies>
