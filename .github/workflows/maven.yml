@@ -29,7 +29,7 @@ jobs:
           token: ${{ secrets.TC_CLOUD_TOKEN }}
 
       - name: Set up JDK 23
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '23'
           distribution: 'corretto'
@@ -56,7 +56,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Set up JDK 23
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '23'
           distribution: 'corretto'
