@@ -7,7 +7,7 @@ services:
     ports:
       - "52181:2181"
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.7.0
     depends_on:
       - zookeeper
     ports:
@@ -30,7 +30,7 @@ services:
     depends_on:
       - kafka
   db:
-    image: debezium/example-postgres
+    image: postgres:15-alpine
     restart: always
     environment:
       POSTGRES_USER: postgres
@@ -45,7 +45,7 @@ services:
       - "-c"
       - "wal_level=logical"
   debezium:
-    image: debezium/connect
+    image: debezium/connect:2.7.0.Final
     container_name: debezium
     links:
       - db

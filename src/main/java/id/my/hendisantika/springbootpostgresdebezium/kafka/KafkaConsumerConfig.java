@@ -1,8 +1,8 @@
 package id.my.hendisantika.springbootpostgresdebezium.kafka;
 
-import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
 import id.my.hendisantika.springbootpostgresdebezium.deserializer.PolicyDeserializer;
 import id.my.hendisantika.springbootpostgresdebezium.model.Policy;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
