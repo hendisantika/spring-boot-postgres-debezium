@@ -112,34 +112,105 @@ The application uses PostgreSQL with the following settings:
 
 ### Policy Management
 
-```http
-# Create a new policy
-POST /api/policies
-Content-Type: application/json
+#### Create a New Policy
+
+```bash
+curl -X POST http://localhost:8080/api/policies \
+  -H "Content-Type: application/json" \
+  -d '{
+    "policyNumber": "POL-001",
+    "policyHolder": "John Doe",
+    "startDate": "2024-01-01T00:00:00",
+    "endDate": "2024-12-31T23:59:59"
+  }'
+```
+
+#### Get All Policies
+
+```bash
+curl -X GET http://localhost:8080/api/policies
+```
+
+#### Get Policy by ID
+
+```bash
+curl -X GET http://localhost:8080/api/policies/1
+```
+
+#### Update Policy
+
+```bash
+curl -X PUT http://localhost:8080/api/policies/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "policyNumber": "POL-001-UPDATED",
+    "policyHolder": "John Doe Updated",
+    "startDate": "2024-01-01T00:00:00",
+    "endDate": "2024-12-31T23:59:59"
+  }'
+```
+
+#### Delete Policy
+
+```bash
+curl -X DELETE http://localhost:8080/api/policies/1
+```
+
+### Health Check
+
+#### Application Status
+
+```bash
+curl -X GET http://localhost:8080/
+```
+
+### HTTP Response Format
+
+All API endpoints return JSON responses in the following format:
+
+#### Success Response (Policy CRUD operations):
+
+```json
 {
+  "id": 1,
   "policyNumber": "POL-001",
   "policyHolder": "John Doe",
   "startDate": "2024-01-01T00:00:00",
   "endDate": "2024-12-31T23:59:59"
 }
-
-# Get all policies
-GET /api/policies
-
-# Get policy by ID
-GET /api/policies/{id}
-
-# Update policy
-PUT /api/policies/{id}
-
-# Delete policy
-DELETE /api/policies/{id}
 ```
 
-### Health Check
+#### Success Response (Get All Policies):
 
-```http
-GET /
+```json
+[
+  {
+    "id": 1,
+    "policyNumber": "POL-001",
+    "policyHolder": "John Doe",
+    "startDate": "2024-01-01T00:00:00",
+    "endDate": "2024-12-31T23:59:59"
+  },
+  {
+    "id": 2,
+    "policyNumber": "POL-002",
+    "policyHolder": "Jane Smith",
+    "startDate": "2024-02-01T00:00:00",
+    "endDate": "2024-12-31T23:59:59"
+  }
+]
+```
+
+#### Error Response:
+
+```json
+{
+  "timestamp": "2024-01-01T12:00:00.000Z",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Policy not found with id: 1",
+  "path": "/api/policies/1"
+}
 ```
 
 ## 🎯 Key Components
@@ -194,10 +265,193 @@ docker exec -it spring-boot-postgres-debezium-kafka-1 kafka-console-consumer --b
 
 ## 🧪 Testing the CDC Flow
 
-1. **Create a Policy**: Use the REST API to create a new policy
-2. **Monitor Kafka**: Check Kowl UI for CDC messages in `debezium.public.policy` topic
-3. **Verify Processing**: Check application logs for consumed CDC events
-4. **Update/Delete**: Perform updates/deletes and observe CDC events
+Follow these steps to test the complete Change Data Capture flow:
+
+### Step 1: Start All Services
+
+```bash
+# Start infrastructure
+docker-compose up -d
+
+# Start Spring Boot application
+./mvnw spring-boot:run
+```
+
+### Step 2: Configure Debezium Connector
+
+First, create the Debezium PostgreSQL connector:
+
+```bash
+curl -X POST http://localhost:8083/connectors \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "postgres-connector",
+    "config": {
+      "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+      "database.hostname": "db",
+      "database.port": "5432",
+      "database.user": "postgres",
+      "database.password": "postgres",
+      "database.dbname": "debezium",
+      "database.server.name": "debezium",
+      "table.include.list": "public.policy",
+      "plugin.name": "pgoutput"
+    }
+  }'
+```
+
+### Step 3: Test CRUD Operations and Monitor CDC Events
+
+#### 3.1 Create a Policy (INSERT Event)
+
+```bash
+curl -X POST http://localhost:8080/api/policies \
+  -H "Content-Type: application/json" \
+  -d '{
+    "policyNumber": "POL-001",
+    "policyHolder": "John Doe",
+    "startDate": "2024-01-01T00:00:00",
+    "endDate": "2024-12-31T23:59:59"
+  }'
+```
+
+#### 3.2 Update the Policy (UPDATE Event)
+
+```bash
+curl -X PUT http://localhost:8080/api/policies/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "policyNumber": "POL-001-UPDATED",
+    "policyHolder": "John Doe Updated",
+    "startDate": "2024-01-01T00:00:00",
+    "endDate": "2024-12-31T23:59:59"
+  }'
+```
+
+#### 3.3 Delete the Policy (DELETE Event)
+
+```bash
+curl -X DELETE http://localhost:8080/api/policies/1
+```
+
+### Step 4: Monitor CDC Events
+
+#### 4.1 Using Kafka Console Consumer
+
+```bash
+# Monitor CDC events in real-time
+docker exec -it spring-boot-postgres-debezium-kafka-1 kafka-console-consumer \
+  --bootstrap-server localhost:9092 \
+  --topic debezium.public.policy \
+  --from-beginning
+```
+
+#### 4.2 Using Kowl UI
+
+1. Open `http://localhost:8090` in your browser
+2. Navigate to Topics → `debezium.public.policy`
+3. Observe INSERT, UPDATE, and DELETE events
+
+#### 4.3 Check Application Logs
+
+```bash
+# View Spring Boot application logs
+docker-compose logs -f
+```
+
+### Step 5: Verify Connector Status
+
+```bash
+# Check connector status
+curl -X GET http://localhost:8083/connectors/postgres-connector/status
+
+# List all connectors
+curl -X GET http://localhost:8083/connectors
+```
+
+### Expected CDC Event Format
+
+#### INSERT Event:
+
+```json
+{
+  "before": null,
+  "after": {
+    "id": 1,
+    "policy_number": "POL-001",
+    "policy_holder": "John Doe",
+    "start_date": 1704067200000000,
+    "end_date": 1735689599000000
+  },
+  "source": {
+    "version": "2.7.0.Final",
+    "connector": "postgresql",
+    "name": "debezium",
+    "ts_ms": 1704067200000,
+    "snapshot": "false",
+    "db": "debezium",
+    "schema": "public",
+    "table": "policy",
+    "txId": 123,
+    "lsn": 456
+  },
+  "op": "c",
+  "ts_ms": 1704067200000
+}
+```
+
+#### UPDATE Event:
+
+```json
+{
+  "before": {
+    "id": 1,
+    "policy_number": "POL-001",
+    "policy_holder": "John Doe",
+    "start_date": 1704067200000000,
+    "end_date": 1735689599000000
+  },
+  "after": {
+    "id": 1,
+    "policy_number": "POL-001-UPDATED",
+    "policy_holder": "John Doe Updated",
+    "start_date": 1704067200000000,
+    "end_date": 1735689599000000
+  },
+  "source": {
+    ...
+  },
+  "op": "u",
+  "ts_ms": 1704067200000
+}
+```
+
+#### DELETE Event:
+
+```json
+{
+  "before": {
+    "id": 1,
+    "policy_number": "POL-001-UPDATED",
+    "policy_holder": "John Doe Updated",
+    "start_date": 1704067200000000,
+    "end_date": 1735689599000000
+  },
+  "after": null,
+  "source": {
+    ...
+  },
+  "op": "d",
+  "ts_ms": 1704067200000
+}
+```
+
+### Operation Types
+
+- `c` = CREATE (INSERT)
+- `u` = UPDATE
+- `d` = DELETE
+- `r` = READ (snapshot)
 
 ## 📂 Project Structure
 
