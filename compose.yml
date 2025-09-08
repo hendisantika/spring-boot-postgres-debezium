@@ -30,7 +30,7 @@ services:
     depends_on:
       - kafka
   db:
-    image: postgres:15-alpine
+    image: postgres:17.5-alpine3.22
     restart: always
     environment:
       POSTGRES_USER: postgres
