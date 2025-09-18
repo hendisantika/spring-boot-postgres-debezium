@@ -16,7 +16,7 @@
     <properties>
         <java.version>21</java.version>
         <testcontainers.version>1.21.3</testcontainers.version>
-             <lombok.version>1.18.40</lombok.version>
+             <lombok.version>1.18.42</lombok.version>
     </properties>
     <dependencies>
         <dependency>
