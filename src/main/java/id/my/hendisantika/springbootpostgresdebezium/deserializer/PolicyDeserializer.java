@@ -1,12 +1,13 @@
 package id.my.hendisantika.springbootpostgresdebezium.deserializer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import id.my.hendisantika.springbootpostgresdebezium.model.PolicyMessageCDC;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ import java.util.Map;
 @Slf4j
 public class PolicyDeserializer implements Deserializer<PolicyMessageCDC> {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
@@ -35,8 +36,8 @@ public class PolicyDeserializer implements Deserializer<PolicyMessageCDC> {
         log.info("kafka process deserializer from payload = [{}]", payload);
         try {
             return objectMapper.readValue(bytes, PolicyMessageCDC.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (JacksonException e) {
+            throw new IllegalStateException("Failed to deserialize CDC message from topic " + payload, e);
         }
     }
 
