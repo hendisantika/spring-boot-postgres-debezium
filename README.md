@@ -1,5 +1,10 @@
 # Spring Boot PostgreSQL Debezium CDC Demo
 
+[![Debezium application workflow](https://github.com/hendisantika/spring-boot-postgres-debezium/actions/workflows/maven.yml/badge.svg)](https://github.com/hendisantika/spring-boot-postgres-debezium/actions/workflows/maven.yml)
+![Java](https://img.shields.io/badge/Java-25-orange?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F?logo=springboot)
+![Dependabot](https://img.shields.io/badge/Dependabot-enabled-025E8C?logo=dependabot)
+
 A comprehensive demonstration of Change Data Capture (CDC) using Spring Boot, PostgreSQL, and Debezium with Kafka for
 real-time data streaming and event-driven architecture.
 
@@ -11,24 +16,27 @@ consumer (through Kafka listeners) to demonstrate real-time data synchronization
 
 ## 🛠️ Technologies Used
 
-- **Spring Boot 3.5.5** - Application framework
-- **Java 21** - Programming language
-- **PostgreSQL 15** - Primary database
-- **Apache Kafka** - Message streaming platform
-- **Debezium** - Change Data Capture platform
+- **Spring Boot 4.1.1** - Application framework
+- **Java 25 (LTS)** - Programming language
+- **PostgreSQL 17** - Primary database
+- **Apache Kafka (Confluent 7.7.0)** - Message streaming platform
+- **Debezium 2.7.0.Final** - Change Data Capture platform
+- **Jackson 3** - JSON (de)serialization of CDC events
+- **Testcontainers 2.x** - Integration testing
 - **Spring Data JPA** - Data access layer
 - **Spring Kafka** - Kafka integration
 - **Docker Compose** - Container orchestration
 - **Maven** - Build tool
-- **Lombok** - Code generation
+- **Lombok 1.18.48** - Code generation
+- **GitHub Actions & Dependabot** - CI/CD and automated dependency updates
 
 ## 📋 Prerequisites
 
 Before running this application, ensure you have:
 
-- Java 21 or higher installed
+- Java 25 or higher installed (e.g. `sdk install java 25.0.5.1.2-amzn`)
 - Docker and Docker Compose
-- Maven 3.6+ (or use the included Maven wrapper)
+- Maven 3.9+ (or use the included Maven wrapper)
 - Git
 
 ## 🏗️ Architecture
@@ -468,9 +476,14 @@ src/
 │   │       ├── deserializer/       # Custom deserializers
 │   │       └── SpringBootPostgresDebeziumApplication.java
 │   └── resources/
-│       └── application.properties
-├── test/                          # Unit and integration tests
-└── docker-compose.yml            # Infrastructure services
+│       └── application.yml
+└── test/                           # Integration tests (Testcontainers)
+
+.github/
+├── workflows/maven.yml             # CI/CD pipeline (build → docker → deploy)
+└── dependabot.yml                  # Automated dependency updates
+compose.yml                         # Infrastructure services
+Dockerfile                          # Multi-stage image (Maven + Temurin 25 → Corretto 25)
 ```
 
 ## 🐳 Docker Services
@@ -482,6 +495,47 @@ src/
 | Kafka            | 29092 | Message streaming platform                |
 | Debezium Connect | 8083  | CDC connector platform                    |
 | Kowl             | 8090  | Kafka web UI                              |
+
+## 🐳 Building the Docker Image
+
+The `Dockerfile` uses a multi-stage build:
+
+1. **Build stage** – `maven:3.9.11-eclipse-temurin-25-alpine` packages the application.
+2. **Runtime stage** – `amazoncorretto:25-alpine-jdk` runs the jar as a non-root user.
+
+```bash
+docker build -t hendisantika/debezium:local .
+docker run --rm -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5433/debezium \
+  hendisantika/debezium:local
+```
+
+## ⚙️ CI/CD (GitHub Actions)
+
+The workflow [`.github/workflows/maven.yml`](.github/workflows/maven.yml) runs on pushes and pull requests to `main`
+that touch `src/**`, `pom.xml`, `Dockerfile`, `deploy.sh` or the workflow itself:
+
+| Job             | Runs on                  | Description                                                                      |
+|-----------------|--------------------------|----------------------------------------------------------------------------------|
+| `project-build` | push & pull request      | Sets up JDK 25 (Corretto) + Testcontainers Cloud, then runs `mvn clean verify`   |
+| `docker-build`  | push to `main` only      | Builds and pushes `hendisantika/debezium:<run_number>` to Docker Hub             |
+| `deploy`        | push to `main` only      | Copies the `.env` file to the server and runs `deploy.sh` over SSH               |
+
+Required secrets: `TC_CLOUD_TOKEN`, `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `SERVER_HOST`, `SERVER_PORT`,
+`SERVER_USERNAME`, `SERVER_KEY`, `SERVER_PASSWORD`.
+
+## 🤖 Dependency Updates (Dependabot)
+
+[`.github/dependabot.yml`](.github/dependabot.yml) keeps dependencies up to date automatically:
+
+| Ecosystem        | Schedule (Asia/Jakarta) | Grouping                                                                   | Commit prefix     |
+|------------------|-------------------------|----------------------------------------------------------------------------|-------------------|
+| Maven            | Daily, 05:00            | `spring-boot`, `spring`, `testcontainers`, `maven-plugins`, minor & patch  | `build(deps)`     |
+| GitHub Actions   | Daily, 05:00            | `actions/*`, `docker/*`                                                    | `ci(deps)`        |
+| Docker           | Weekly (Mon), 05:00     | – (major Java/Maven image bumps ignored to stay on JDK 25 LTS)            | `build(docker)`   |
+| Docker Compose   | Weekly (Mon), 05:00     | –                                                                          | `build(compose)`  |
+
+All Dependabot pull requests are labelled (`dependencies` + ecosystem label) and assigned to the maintainer.
 
 ## 🔧 Troubleshooting
 
@@ -498,6 +552,10 @@ src/
 3. **Debezium Connector Not Working**
     - Ensure PostgreSQL has logical replication enabled
     - Check Debezium Connect logs: `docker-compose logs debezium`
+
+4. **Lombok getters/setters not found when compiling on JDK 23+**
+    - JDK 23+ no longer runs annotation processors implicitly. Lombok is registered explicitly via
+      `annotationProcessorPaths` in `maven-compiler-plugin` – keep it in sync with `lombok.version`.
 
 ### Useful Commands
 
