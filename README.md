@@ -2,7 +2,7 @@
 
 [![Debezium application workflow](https://github.com/hendisantika/spring-boot-postgres-debezium/actions/workflows/maven.yml/badge.svg)](https://github.com/hendisantika/spring-boot-postgres-debezium/actions/workflows/maven.yml)
 ![Java](https://img.shields.io/badge/Java-25-orange?logo=openjdk)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F?logo=springboot)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.2-6DB33F?logo=springboot)
 ![Dependabot](https://img.shields.io/badge/Dependabot-enabled-025E8C?logo=dependabot)
 
 A comprehensive demonstration of Change Data Capture (CDC) using Spring Boot, PostgreSQL, and Debezium with Kafka for
@@ -16,7 +16,7 @@ consumer (through Kafka listeners) to demonstrate real-time data synchronization
 
 ## 🛠️ Technologies Used
 
-- **Spring Boot 4.1.1** - Application framework
+- **Spring Boot 4.1.2** - Application framework
 - **Java 25 (LTS)** - Programming language
 - **PostgreSQL 17** - Primary database
 - **Apache Kafka (Confluent 7.7.0)** - Message streaming platform
@@ -500,7 +500,7 @@ Dockerfile                          # Multi-stage image (Maven + Temurin 25 → 
 
 The `Dockerfile` uses a multi-stage build:
 
-1. **Build stage** – `maven:3.9.11-eclipse-temurin-25-alpine` packages the application.
+1. **Build stage** – `maven:3.9-eclipse-temurin-25-alpine` packages the application.
 2. **Runtime stage** – `amazoncorretto:25-alpine-jdk` runs the jar as a non-root user.
 
 ```bash
@@ -533,7 +533,7 @@ Required secrets: `TC_CLOUD_TOKEN`, `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`.
 |------------------|-------------------------|----------------------------------------------------------------------------|-------------------|
 | Maven            | Daily, 05:00            | `spring-boot`, `spring`, `testcontainers`, `maven-plugins`, minor & patch  | `build(deps)`     |
 | GitHub Actions   | Daily, 05:00            | `actions/*`, `docker/*`                                                    | `ci(deps)`        |
-| Docker           | Weekly (Mon), 05:00     | – (major Java/Maven image bumps ignored to stay on JDK 25 LTS)            | `build(docker)`   |
+| Docker           | Weekly (Mon), 05:00     | – (`amazoncorretto` majors & `maven` build image ignored → stay on JDK 25)| `build(docker)`   |
 | Docker Compose   | Weekly (Mon), 05:00     | –                                                                          | `build(compose)`  |
 
 All Dependabot pull requests are labelled (`dependencies` + ecosystem label) and assigned to the maintainer.

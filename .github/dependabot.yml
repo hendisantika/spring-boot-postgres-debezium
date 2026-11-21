@@ -17,7 +17,6 @@ updates:
     commit-message:
       prefix: "build(deps)"
       prefix-development: "build(deps-dev)"
-      include: scope
     groups:
       spring-boot:
         patterns:
@@ -54,7 +53,6 @@ updates:
       - hendisantika
     commit-message:
       prefix: "ci(deps)"
-      include: scope
     groups:
       docker-actions:
         patterns:
@@ -80,15 +78,14 @@ updates:
       - hendisantika
     commit-message:
       prefix: "build(docker)"
-      include: scope
     ignore:
-      # Stay on the JDK 25 LTS line; skip non-LTS major Java images
+      # Stay on the JDK 25 LTS line; skip images that change the Java major version
       - dependency-name: "amazoncorretto"
         update-types:
           - version-update:semver-major
+      # maven tags embed the JDK (e.g. 3.9-eclipse-temurin-25-alpine) and Dependabot
+      # bumps the JDK part as well, so the build image is updated manually
       - dependency-name: "maven"
-        update-types:
-          - version-update:semver-major
 
   # Docker Compose services (compose.yml)
   - package-ecosystem: docker-compose
@@ -107,4 +104,3 @@ updates:
       - hendisantika
     commit-message:
       prefix: "build(compose)"
-      include: scope
