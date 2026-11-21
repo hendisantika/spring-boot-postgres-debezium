@@ -1,13 +1,110 @@
 version: 2
 updates:
+  # Maven dependencies (pom.xml)
   - package-ecosystem: maven
     directory: "/"
     schedule:
       interval: daily
-      time: '05:00'
+      time: "05:00"
       timezone: Asia/Jakarta
     open-pull-requests-limit: 10
-  - package-ecosystem: "github-actions"
+    target-branch: main
+    labels:
+      - dependencies
+      - java
+    assignees:
+      - hendisantika
+    commit-message:
+      prefix: "build(deps)"
+      prefix-development: "build(deps-dev)"
+      include: scope
+    groups:
+      spring-boot:
+        patterns:
+          - "org.springframework.boot*"
+      spring:
+        patterns:
+          - "org.springframework*"
+        exclude-patterns:
+          - "org.springframework.boot*"
+      testcontainers:
+        patterns:
+          - "org.testcontainers*"
+      maven-plugins:
+        patterns:
+          - "org.apache.maven.plugins*"
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # GitHub Actions (.github/workflows)
+  - package-ecosystem: github-actions
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: daily
+      time: "05:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    target-branch: main
+    labels:
+      - dependencies
+      - github_actions
+    assignees:
+      - hendisantika
+    commit-message:
+      prefix: "ci(deps)"
+      include: scope
+    groups:
+      docker-actions:
+        patterns:
+          - "docker/*"
+      github-actions:
+        patterns:
+          - "actions/*"
+
+  # Docker base images (Dockerfile)
+  - package-ecosystem: docker
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 5
+    target-branch: main
+    labels:
+      - dependencies
+      - docker
+    assignees:
+      - hendisantika
+    commit-message:
+      prefix: "build(docker)"
+      include: scope
+    ignore:
+      # Stay on the JDK 25 LTS line; skip non-LTS major Java images
+      - dependency-name: "amazoncorretto"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "maven"
+        update-types:
+          - version-update:semver-major
+
+  # Docker Compose services (compose.yml)
+  - package-ecosystem: docker-compose
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 5
+    target-branch: main
+    labels:
+      - dependencies
+      - docker
+    assignees:
+      - hendisantika
+    commit-message:
+      prefix: "build(compose)"
+      include: scope
