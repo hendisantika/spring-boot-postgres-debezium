@@ -480,7 +480,7 @@ src/
 └── test/                           # Integration tests (Testcontainers)
 
 .github/
-├── workflows/maven.yml             # CI/CD pipeline (build → docker → deploy)
+├── workflows/maven.yml             # CI/CD pipeline (build → docker push)
 └── dependabot.yml                  # Automated dependency updates
 compose.yml                         # Infrastructure services
 Dockerfile                          # Multi-stage image (Maven + Temurin 25 → Corretto 25)
@@ -519,10 +519,11 @@ that touch `src/**`, `pom.xml`, `Dockerfile`, `deploy.sh` or the workflow itself
 |-----------------|--------------------------|----------------------------------------------------------------------------------|
 | `project-build` | push & pull request      | Sets up JDK 25 (Corretto) + Testcontainers Cloud, then runs `mvn clean verify`   |
 | `docker-build`  | push to `main` only      | Builds and pushes `hendisantika/debezium:<run_number>` to Docker Hub             |
-| `deploy`        | push to `main` only      | Copies the `.env` file to the server and runs `deploy.sh` over SSH               |
 
-Required secrets: `TC_CLOUD_TOKEN`, `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `SERVER_HOST`, `SERVER_PORT`,
-`SERVER_USERNAME`, `SERVER_KEY`, `SERVER_PASSWORD`.
+Required secrets: `TC_CLOUD_TOKEN`, `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`.
+
+> The automatic SSH deployment job was removed. To deploy manually, copy a `.env` file to `~/debezium` on your server
+> and run [`deploy.sh`](deploy.sh) with `SERVER_HOST`, `SERVER_PORT` and `SERVER_USERNAME` exported.
 
 ## 🤖 Dependency Updates (Dependabot)
 
