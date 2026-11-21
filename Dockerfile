@@ -1,4 +1,4 @@
-FROM maven:3.9.8-eclipse-temurin-21-alpine AS build
+FROM maven:3.9.11-eclipse-temurin-25-alpine AS build
 
 RUN mkdir /project
 
@@ -16,12 +16,9 @@ RUN echo $GIT_VERSION_TAG > GIT_VERSION_TAG.txt
 RUN echo $GIT_COMMIT_MESSAGE > GIT_COMMIT_MESSAGE.txt
 RUN echo $GIT_VERSION_HASH > GIT_VERSION_HASH.txt
 
-RUN mvn clean package
+RUN mvn --batch-mode --no-transfer-progress clean package -DskipTests
 
-#FROM adoptopenjdk/openjdk21:eclipse-temurin-21-alpine
-#FROM bellsoft/liberica-openjdk-debian:21
-#FROM openjdk:21-slim
-FROM amazoncorretto:21-alpine-jdk
+FROM amazoncorretto:25-alpine-jdk
 LABEL maintainer="hendisantika@yahoo.co.id"
 
 RUN mkdir /app
